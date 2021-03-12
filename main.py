@@ -19,14 +19,48 @@ age = 0;
 def job():
     response = requests.get('http://192.168.1.131/temp')
     bot.reply_to(748853442, f'Температура сейчас: {response.text} C')
+def job1():
+    humid = requests.get('http://192.168.1.131/humid')
+    bot.reply_to(748853442, f'Влажность сейчас: {humid.text} %')
 @bot.message_handler(commands=['alert'])
 def send_welcome(message):
     print(message.chat.id)
     while True:
         response = requests.get('http://192.168.1.131/temp')
-        if (float(response.text) < 25):
-            bot.reply_to(message, f'Температура сейчас: {response.text} C')
+        responseh = requests.get('http://192.168.1.131/humid')
+        responses = requests.get('http://192.168.1.131/smoke')
+        responsem = requests.get('http://192.168.1.131/move')
+        if (float(response.text) > 27 or float(response.text) <18):
+            bot.reply_to(message, f'Внимание! Обнаружено резкое изменение температуры! Температура сечас: {response.text} C')
+        if (int(responseh.text) > 55 or int(responseh.text) < 40):
+            bot.reply_to(message, f'Внимание! Обнаружено резкое изменение влажности! Влажность сечас: {responseh.text} %')
+        if (int(responses.text) > 75):
+            bot.reply_to(message, f'Внимание! Обнаружено резкое повышение метана! Уровень метана сечас: {responses.text} ppm')
+        if (int(responsem.text) == 1):
+            bot.reply_to(message, f'Внимание! Обнаружено движение!')
         time.sleep(10)
+
+
+@bot.message_handler(commands=['humid1'])
+def send_welcome(message):
+    print(message.chat.id)
+    while True:
+        response = requests.get('http://192.168.1.131/humid')
+        if (int(response.text) < 25):
+            bot.reply_to(message, f'Влажность сейчас: {response.text} %')
+        time.sleep(10)
+
+@bot.message_handler(commands=['humid'])
+def send_welcome(message):
+    print(message.chat.id)
+    response = requests.get('http://192.168.1.131/humid')
+    bot.reply_to(message, f'Влажность сейчас: {response.text} %')
+
+@bot.message_handler(commands=['temp'])
+def send_welcome(message):
+    response = requests.get('http://192.168.1.131/temp')
+    bot.reply_to(message, f'Температура сейчас: {response.text} С')
+
 
 @bot.message_handler(content_types=['text'])
 def start(message):
